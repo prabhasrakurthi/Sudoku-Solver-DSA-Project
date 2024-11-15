@@ -1,11 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
     const board = document.getElementById("board");
-    const generateBtn = document.getElementById("generateBtn");
     const solveBtn = document.getElementById("solveBtn");
     const resetBtn = document.getElementById("resetBtn");
     const checkBtn = document.getElementById("checkBtn");
     const message = document.getElementById("message");
     const solver = new SudokuSolver();
+
+    // Fixed template with empty strings for blank cells
+    const initialPuzzle = [
+        ["5", "3", "", "", "7", "", "", "", ""],
+        ["6", "", "", "1", "9", "5", "", "", ""],
+        ["", "9", "8", "", "", "", "", "6", ""],
+        ["8", "", "", "", "6", "", "", "", "3"],
+        ["4", "", "", "8", "", "3", "", "", "1"],
+        ["7", "", "", "", "2", "", "", "", "6"],
+        ["", "6", "", "", "", "", "2", "8", ""],
+        ["", "", "", "4", "1", "9", "", "", "5"],
+        ["", "", "", "", "8", "", "", "7", "9"],
+    ];
 
     // Create the grid
     for (let i = 0; i < 81; i++) {
@@ -26,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Create a 9x9 grid
         for (let i = 0; i < 9; i++) {
-            boardData.push(inputs.slice(i * 9, i * 9 + 9).map((input) => input.value || "."));
+            boardData.push(inputs.slice(i * 9, i * 9 + 9).map((input) => input.value || ""));
         }
         return boardData;
     };
@@ -37,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
             input.value = boardData[Math.floor(index / 9)][index % 9];
         });
     };
+
+    // Initialize board with the fixed template
+    setBoardData(initialPuzzle);
 
     // Solve the Sudoku puzzle
     solveBtn.addEventListener("click", () => {
@@ -52,38 +67,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Generate a simple puzzle (example puzzle)
-    generateBtn.addEventListener("click", () => {
-        const puzzle = [
-            ["5", "3", "", "", "7", "", "", "", ""],
-            ["6", "", "", "1", "9", "5", "", "", ""],
-            ["", "9", "8", "", "", "", "", "6", ""],
-            ["8", "", "", "", "6", "", "", "", "3"],
-            ["4", "", "", "8", "", "3", "", "", "1"],
-            ["7", "", "", "", "2", "", "", "", "6"],
-            ["", "6", "", "", "", "", "2", "8", ""],
-            ["", "", "", "4", "1", "9", "", "", "5"],
-            ["", "", "", "", "8", "", "", "7", "9"],
-        ];
-        setBoardData(puzzle);
-        message.textContent = "";
-    });
-
-    // Reset the board
+    // Reset the board to the initial template
     resetBtn.addEventListener("click", () => {
-        const inputs = Array.from(board.querySelectorAll("input"));
-        inputs.forEach((input) => {
-            input.value = "";
-        });
+        setBoardData(initialPuzzle);
         message.textContent = "";
     });
 
-    // Check if the Sudoku is valid
+    // Check if the Sudoku is solved
     checkBtn.addEventListener("click", () => {
         const boardData = getBoardData();
+
         if (solver.isValidSudoku(boardData)) {
-            message.textContent = "The Sudoku is valid!";
-            message.style.color = "green";
+            const isFullySolved = boardData.every((row) => row.every((cell) => cell !== ""));
+            if (isFullySolved) {
+                message.textContent = "Solved!";
+                message.style.color = "green";
+            } else {
+                message.textContent = "The Sudoku is valid but incomplete.";
+                message.style.color = "orange";
+            }
         } else {
             message.textContent = "The Sudoku is invalid.";
             message.style.color = "red";
